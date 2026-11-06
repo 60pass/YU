@@ -1,0 +1,1240 @@
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  /* ===== RESET & BASE ===== */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: #f5f3ef;
+    color: #1a1a1a;
+    line-height: 1.5;
+    overflow-x: hidden;
+  }
+
+  /* ===== HIDE ALL RADIOS ===== */
+  input[type="radio"], input[type="checkbox"] { display: none; }
+
+  /* ===== PAGE SYSTEM ===== */
+  .page { display: none; min-height: 100vh; position: relative; }
+
+  /* Main Menu */
+  #nav-main:checked ~ .page-main { display: flex; }
+  #nav-ch1:checked ~ .page-ch1 { display: flex; }
+  #nav-bias-bull:checked ~ .page-bias-bull { display: flex; }
+  #nav-bias-bear:checked ~ .page-bias-bear { display: flex; }
+  #nav-pdl:checked ~ .page-pdl { display: flex; }
+  #nav-pdl2:checked ~ .page-pdl2 { display: flex; }
+  #nav-exp-pos:checked ~ .page-exp-pos { display: flex; }
+  #nav-exp-neg:checked ~ .page-exp-neg { display: flex; }
+  #nav-rev-pos:checked ~ .page-rev-pos { display: flex; }
+  #nav-rev-neg:checked ~ .page-rev-neg { display: flex; }
+
+  /* ===== MAIN MENU ===== */
+  .page-main {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background: #f0ece4;
+    position: relative;
+    overflow: hidden;
+  }
+  .main-watermark {
+    position: absolute;
+    font-size: 180px;
+    font-weight: 900;
+    color: rgba(0,0,0,0.03);
+    letter-spacing: 20px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    white-space: nowrap;
+  }
+  .main-candle-icon {
+    width: 60px;
+    height: 140px;
+    position: relative;
+    margin-bottom: 8px;
+  }
+  .candle-wick {
+    width: 3px;
+    height: 100%;
+    background: #1a1a1a;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .candle-body {
+    width: 36px;
+    height: 60px;
+    background: #e8e4dc;
+    border: 2px solid #1a1a1a;
+    position: absolute;
+    left: 50%;
+    top: 30%;
+    transform: translateX(-50%);
+    border-radius: 2px;
+  }
+  .main-title {
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: 8px;
+    margin-top: 16px;
+    font-style: italic;
+  }
+  .main-subtitle {
+    font-size: 14px;
+    color: #888;
+    letter-spacing: 4px;
+    margin-bottom: 40px;
+  }
+  .menu-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 1;
+    width: 320px;
+  }
+  .menu-btn {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 24px;
+    background: rgba(255,255,255,0.6);
+    border: 1px solid #d0ccc4;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: 1px;
+  }
+  .menu-btn:hover {
+    background: #1a1a1a;
+    color: #fff;
+    border-color: #1a1a1a;
+  }
+  .menu-btn svg { width: 20px; height: 20px; flex-shrink: 0; }
+  .menu-btn:hover svg path { stroke: #fff; }
+  .menu-btn .ch { margin-right: 4px; }
+  .menu-btn .en { font-size: 11px; color: #999; margin-left: auto; }
+  .menu-btn:hover .en { color: #ccc; }
+
+  /* ===== BREADCRUMB ===== */
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: #999;
+    padding: 16px 24px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 10;
+  }
+  .breadcrumb span { cursor: default; }
+  .breadcrumb .active { color: #1a1a1a; font-weight: 600; }
+  .breadcrumb .sep { color: #ccc; }
+
+  /* ===== INTERIOR PAGES ===== */
+  .interior {
+    flex-direction: column;
+    min-height: 100vh;
+    background: #f5f3ef;
+    padding: 56px 32px 32px;
+  }
+  .page-header {
+    margin-bottom: 24px;
+  }
+  .page-header .chapter-tag {
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: #999;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .page-header h1 {
+    font-size: 26px;
+    font-weight: 800;
+    font-style: italic;
+    line-height: 1.3;
+  }
+  .page-header h1 .en {
+    display: block;
+    font-size: 13px;
+    font-weight: 400;
+    font-style: normal;
+    color: #888;
+    margin-top: 4px;
+  }
+  .page-header p {
+    font-size: 13px;
+    color: #555;
+    margin-top: 12px;
+    max-width: 640px;
+    line-height: 1.7;
+  }
+
+  /* ===== CHAPTER 1 LAYOUT ===== */
+  .ch1-content {
+    display: flex;
+    gap: 40px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+  .ch1-left { flex: 1; min-width: 280px; }
+  .ch1-right { flex: 0 0 280px; }
+
+  .perspectives {
+    margin-top: 24px;
+    font-size: 14px;
+  }
+  .perspectives .label {
+    font-size: 12px;
+    color: #999;
+    margin-bottom: 12px;
+  }
+  .persp-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 0;
+    border-bottom: 1px solid #e8e4dc;
+    font-weight: 600;
+  }
+  .persp-num {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #1a1a1a;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .persp-item .en { font-size: 11px; color: #888; font-weight: 400; margin-left: 4px; }
+
+  /* OHLC Diagram */
+  .ohlc-diagram {
+    width: 200px;
+    height: 260px;
+    position: relative;
+    margin: 20px auto;
+    background: rgba(255,255,255,0.5);
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .ohlc-candle {
+    width: 50px;
+    height: 200px;
+    position: relative;
+    margin: 0 auto;
+  }
+  .ohlc-candle .wick {
+    width: 3px;
+    height: 100%;
+    background: #1a1a1a;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .ohlc-candle .body {
+    width: 50px;
+    height: 100px;
+    background: #e8e4dc;
+    border: 2px solid #1a1a1a;
+    position: absolute;
+    left: 0;
+    top: 30px;
+    border-radius: 2px;
+  }
+  .ohlc-label {
+    position: absolute;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+  .ohlc-label.h-label { top: -2px; right: -60px; }
+  .ohlc-label.c-label { top: 30px; right: -60px; }
+  .ohlc-label.o-label { top: 110px; right: -60px; }
+  .ohlc-label.l-label { bottom: -2px; right: -60px; }
+
+  /* Mode Select */
+  .mode-select {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid #e8e4dc;
+  }
+  .mode-select h3 {
+    font-size: 12px;
+    letter-spacing: 2px;
+    color: #999;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .mode-btn {
+    display: block;
+    width: 100%;
+    padding: 14px 16px;
+    margin-bottom: 8px;
+    border: 1px solid #d0ccc4;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: left;
+  }
+  .mode-btn:hover {
+    background: #1a1a1a;
+    color: #fff;
+    border-color: #1a1a1a;
+  }
+  .mode-btn .sub { display: block; font-size: 11px; color: #999; font-weight: 400; margin-top: 2px; }
+  .mode-btn:hover .sub { color: #aaa; }
+  .mode-btn.locked {
+    opacity: 0.4;
+    cursor: not-allowed;
+    background: #f5f3ef;
+  }
+  .mode-btn.locked:hover { background: #f5f3ef; color: #1a1a1a; border-color: #d0ccc4; }
+
+  /* ===== SWING POINT PAGE ===== */
+  .swing-layout {
+    display: flex;
+    gap: 32px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+  .swing-chart {
+    flex: 1;
+    min-width: 300px;
+    background: #fff;
+    border-radius: 12px;
+    padding: 24px;
+    border: 1px solid #e8e4dc;
+    min-height: 280px;
+    position: relative;
+    overflow: hidden;
+  }
+  .swing-chart .watermark {
+    position: absolute;
+    font-size: 80px;
+    font-weight: 900;
+    color: rgba(0,0,0,0.02);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
+
+  /* Candlestick bars */
+  .candles-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    height: 200px;
+    padding-top: 20px;
+    position: relative;
+    z-index: 1;
+  }
+  .cstick {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+  }
+  .cstick .upper-wick {
+    width: 2px;
+    background: #1a1a1a;
+  }
+  .cstick .cbody {
+    width: 16px;
+    border-radius: 1px;
+    border: 1px solid #1a1a1a;
+  }
+  .cstick .lower-wick {
+    width: 2px;
+    background: #1a1a1a;
+  }
+  .cstick.bull .cbody { background: #e8e4dc; }
+  .cstick.bear .cbody { background: #1a1a1a; }
+
+  /* Timeframe buttons */
+  .tf-btns {
+    display: flex;
+    gap: 6px;
+    margin-top: 12px;
+  }
+  .tf-btn {
+    padding: 4px 10px;
+    font-size: 10px;
+    border: 1px solid #d0ccc4;
+    border-radius: 4px;
+    cursor: pointer;
+    background: #fff;
+    transition: all 0.15s ease;
+  }
+  .tf-btn:hover, .tf-btn.active { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+
+  /* Bias selector */
+  .bias-panel {
+    flex: 0 0 280px;
+  }
+  .bias-box {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid #e8e4dc;
+  }
+  .bias-box h3 {
+    font-size: 12px;
+    letter-spacing: 2px;
+    color: #999;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .bias-box .zh-title { font-size: 13px; color: #666; margin-bottom: 16px; }
+
+  .bias-option {
+    display: block;
+    width: 100%;
+    padding: 14px 16px;
+    margin-bottom: 8px;
+    border: 2px solid #d0ccc4;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .bias-option:hover { border-color: #1a1a1a; }
+  .bias-option .sub { display: block; font-size: 11px; color: #999; font-weight: 400; }
+  .bias-option.selected {
+    background: #1a1a1a;
+    color: #fff;
+    border-color: #1a1a1a;
+  }
+  .bias-option.selected .sub { color: #aaa; }
+
+  .ohlc-flow {
+    margin-top: 16px;
+    padding: 12px;
+    background: #f9f7f3;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    text-align: center;
+    letter-spacing: 1px;
+  }
+  .ohlc-flow .arrow { color: #999; margin: 0 4px; }
+
+  .bias-desc {
+    margin-top: 16px;
+    font-size: 12px;
+    color: #666;
+    line-height: 1.7;
+    padding: 12px;
+    background: #f9f7f3;
+    border-radius: 8px;
+  }
+  .bias-desc .en { color: #999; font-style: italic; display: block; margin-top: 6px; }
+
+  /* ===== CAROUSEL PAGE ===== */
+  .carousel-section {
+    margin-top: 24px;
+  }
+  .p1-indicator {
+    text-align: center;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: #999;
+    margin-bottom: 8px;
+  }
+  .p1-indicator::after {
+    content: '';
+    display: block;
+    width: 2px;
+    height: 16px;
+    background: #ccc;
+    margin: 4px auto 0;
+  }
+  .carousel-cards {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    align-items: stretch;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+  .carousel-card {
+    flex: 0 0 220px;
+    background: #fff;
+    border: 1px solid #e0dcd4;
+    border-radius: 12px;
+    padding: 24px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+  }
+  .carousel-card:hover { border-color: #1a1a1a; }
+  .carousel-card.active {
+    border: 2px solid #1a1a1a;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  }
+  .carousel-card.locked {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+  .carousel-card .badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 9px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+  .badge.cleared { background: #e8f5e9; color: #2e7d32; }
+  .badge.lock-badge { background: #f5f5f5; color: #999; }
+
+  .card-candle {
+    width: 40px;
+    height: 100px;
+    margin: 0 auto 16px;
+    position: relative;
+  }
+  .card-candle .wick {
+    width: 2px;
+    background: #1a1a1a;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .card-candle .body {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 2px solid #1a1a1a;
+    border-radius: 2px;
+  }
+  /* Bias candle: V shape */
+  .card-candle.bias-shape .wick { height: 100%; top: 0; }
+  .card-candle.bias-shape .body { width: 30px; height: 40px; top: 20px; background: #e8e4dc; }
+  /* Expansion: small wick, large body */
+  .card-candle.exp-shape .wick { height: 100%; top: 0; }
+  .card-candle.exp-shape .body { width: 34px; height: 70px; top: 15px; background: #e8e4dc; }
+  /* Reversal: large wick, small body */
+  .card-candle.rev-shape .wick { height: 100%; top: 0; }
+  .card-candle.rev-shape .body { width: 26px; height: 24px; top: 60px; background: #e8e4dc; }
+
+  .carousel-card h4 {
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+  }
+  .carousel-card .zh { font-size: 12px; color: #888; }
+  .carousel-card .desc { font-size: 11px; color: #aaa; margin-top: 6px; }
+
+  .carousel-nav {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    font-size: 13px;
+  }
+  .carousel-nav label {
+    width: 36px;
+    height: 36px;
+    border: 1px solid #d0ccc4;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    font-size: 16px;
+  }
+  .carousel-nav label:hover { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+  .carousel-nav .select-text {
+    font-size: 12px;
+    letter-spacing: 2px;
+    color: #999;
+  }
+
+  /* ===== CANDLE DETAIL PAGE ===== */
+  .detail-layout {
+    display: flex;
+    gap: 32px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+  .detail-chart {
+    flex: 1;
+    min-width: 300px;
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+  }
+  .ref-candle {
+    width: 60px;
+    height: 180px;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .ref-candle .wick {
+    width: 2px;
+    height: 100%;
+    background: #1a1a1a;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .ref-candle .body {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 2px solid #1a1a1a;
+    border-radius: 2px;
+  }
+  .ref-candle.exp-type .body { width: 44px; height: 120px; top: 20px; background: #e8e4dc; }
+  .ref-candle.rev-type .body { width: 30px; height: 40px; top: 110px; background: #e8e4dc; }
+  .ref-candle .label {
+    position: absolute;
+    font-size: 9px;
+    font-weight: 700;
+    color: #999;
+    white-space: nowrap;
+  }
+  .ref-candle .label.top-l { top: -14px; left: 50%; transform: translateX(-50%); }
+  .ref-candle .label.bot-l { bottom: -14px; left: 50%; transform: translateX(-50%); }
+  .ref-candle .label.body-l { top: 50%; right: -50px; transform: translateY(-50%); }
+
+  .detail-chart-area {
+    flex: 1;
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid #e8e4dc;
+    min-height: 220px;
+    position: relative;
+  }
+
+  .condition-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+    padding: 4px 12px;
+    border-radius: 20px;
+  }
+  .condition-tag.positive { background: #e8f5e9; color: #2e7d32; }
+  .condition-tag.negative { background: #fce4ec; color: #c62828; }
+  .condition-tag .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+  .condition-tag.positive .dot { background: #2e7d32; }
+  .condition-tag.negative .dot { background: #c62828; }
+
+  /* Probability selector */
+  .prob-panel {
+    flex: 0 0 300px;
+  }
+  .prob-box {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid #e8e4dc;
+  }
+  .prob-box h3 {
+    font-size: 12px;
+    letter-spacing: 2px;
+    color: #999;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .prob-box .zh-title { font-size: 13px; color: #666; margin-bottom: 16px; }
+
+  .prob-option {
+    display: block;
+    width: 100%;
+    padding: 12px 16px;
+    margin-bottom: 8px;
+    border: 2px solid #d0ccc4;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .prob-option:hover { border-color: #1a1a1a; }
+  .prob-option.selected {
+    background: #1a1a1a;
+    color: #fff;
+    border-color: #1a1a1a;
+  }
+
+  .characteristics {
+    margin-top: 20px;
+    padding: 16px;
+    background: #f9f7f3;
+    border-radius: 8px;
+  }
+  .characteristics h4 {
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: #999;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .char-item {
+    margin-bottom: 12px;
+    font-size: 12px;
+    line-height: 1.6;
+  }
+  .char-item strong { color: #1a1a1a; }
+  .char-item .en { color: #999; font-style: italic; display: block; font-size: 11px; }
+
+  /* X mark for negative */
+  .x-mark {
+    position: absolute;
+    top: 50%;
+    left: 20px;
+    transform: translateY(-50%);
+    font-size: 60px;
+    color: rgba(200,0,0,0.15);
+    font-weight: 900;
+    pointer-events: none;
+  }
+
+  /* Key Level line */
+  .key-level-line {
+    position: absolute;
+    width: 80%;
+    left: 10%;
+    border-top: 2px dashed #c62828;
+    top: 40%;
+  }
+  .key-level-label {
+    position: absolute;
+    top: calc(40% - 18px);
+    right: 12%;
+    font-size: 9px;
+    font-weight: 700;
+    color: #c62828;
+    letter-spacing: 1px;
+  }
+
+  /* ===== BACK BUTTON ===== */
+  .back-btn {
+    position: absolute;
+    bottom: 24px;
+    left: 32px;
+    padding: 10px 20px;
+    border: 1px solid #d0ccc4;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    background: #fff;
+    transition: all 0.15s ease;
+    z-index: 10;
+  }
+  .back-btn:hover { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+
+  .next-btn {
+    position: absolute;
+    bottom: 24px;
+    right: 32px;
+    padding: 10px 24px;
+    border: 2px solid #1a1a1a;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 700;
+    background: #1a1a1a;
+    color: #fff;
+    transition: all 0.15s ease;
+    z-index: 10;
+    letter-spacing: 1px;
+  }
+  .next-btn:hover { background: #333; }
+
+  /* ===== ANIMATIONS ===== */
+  .fade-in { opacity: 1; }
+  @media (prefers-reduced-motion: no-preference) {
+    .fade-in { animation: fadeIn 0.5s ease-out both; }
+    .fade-d1 { animation-delay: 0.1s; }
+    .fade-d2 { animation-delay: 0.2s; }
+    .fade-d3 { animation-delay: 0.3s; }
+    .fade-d4 { animation-delay: 0.4s; }
+    .fade-d5 { animation-delay: 0.5s; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: none; }
+    }
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 700px) {
+    .swing-layout, .detail-layout, .ch1-content { flex-direction: column; }
+    .bias-panel, .prob-panel, .ch1-right { flex: 1 1 100%; }
+    .carousel-cards { flex-direction: column; align-items: center; }
+    .carousel-card { flex: 0 0 auto; width: 90%; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== NAVIGATION RADIOS ===== -->
+<input type="radio" name="nav" id="nav-main" checked>
+<input type="radio" name="nav" id="nav-ch1">
+<input type="radio" name="nav" id="nav-bias-bull">
+<input type="radio" name="nav" id="nav-bias-bear">
+<input type="radio" name="nav" id="nav-pdl">
+<input type="radio" name="nav" id="nav-pdl2">
+<input type="radio" name="nav" id="nav-exp-pos">
+<input type="radio" name="nav" id="nav-exp-neg">
+<input type="radio" name="nav" id="nav-rev-pos">
+<input type="radio" name="nav" id="nav-rev-neg">
+
+<!-- ========== PAGE 1: MAIN MENU ========== -->
+<div class="page page-main">
+  <div class="main-watermark">CANDLE</div>
+  <div class="main-candle-icon">
+    <div class="candle-wick"></div>
+    <div class="candle-body"></div>
+  </div>
+  <div class="main-title fade-in">CANDLE PROFILE</div>
+  <div class="main-subtitle fade-in fade-d1">· 2026 — 2027 ·</div>
+  <div class="menu-list">
+    <label for="nav-ch1" class="menu-btn fade-in fade-d1">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      <span class="ch">開始遊戲</span>
+      <span class="en">START GAME</span>
+    </label>
+    <label for="nav-ch1" class="menu-btn fade-in fade-d2">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      <span class="ch">繼續遊戲</span>
+      <span class="en">CONTINUE</span>
+    </label>
+    <label for="nav-ch1" class="menu-btn fade-in fade-d3">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      <span class="ch">章節選擇</span>
+      <span class="en">CHAPTERS</span>
+    </label>
+    <div class="menu-btn fade-in fade-d4">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      <span class="ch">設定</span>
+      <span class="en">SETTINGS</span>
+    </div>
+    <div class="menu-btn fade-in fade-d5">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+      <span class="ch">離開遊戲</span>
+      <span class="en">EXIT GAME</span>
+    </div>
+  </div>
+</div>
+
+<!-- ========== PAGE 2: CHAPTER 01 ========== -->
+<div class="page page-ch1 interior">
+  <div class="breadcrumb">
+    <span>Candle Profile</span><span class="sep">›</span><span class="active">Chapter 01</span>
+  </div>
+  <div class="page-header fade-in">
+    <div class="chapter-tag">CHAPTER 01</div>
+    <h1>透過 OHLC 理解市場的運行邏輯
+      <span class="en">Understanding market logic through OHLC</span>
+    </h1>
+    <p>每根 K 棒都由 Open、High、Low、Close 組成。選擇 OHLC 的形成順序，理解價格如何擴張、回撤與鎖定，進一步建立對市場走勢的預期。</p>
+    <p style="color:#999; font-size:12px; font-style:italic;">Every candle is built from Open, High, Low and Close. The order in which OHLC forms shows how price expands, retraces and continues.</p>
+  </div>
+
+  <div class="ch1-content">
+    <div class="ch1-left fade-in fade-d1">
+      <div class="perspectives">
+        <div class="label">再細分成兩個角度 · Two Perspectives</div>
+        <div class="persp-item">
+          <div class="persp-num">①</div>
+          Bias | 市場方向 <span class="en">Market Direction</span>
+        </div>
+        <div class="persp-item">
+          <div class="persp-num">②</div>
+          Price Delivery Logic | 價格運行邏輯
+        </div>
+      </div>
+
+      <div class="ohlc-diagram">
+        <div class="ohlc-candle">
+          <div class="wick"></div>
+          <div class="body"></div>
+          <div class="ohlc-label h-label">HIGH 軌跡</div>
+          <div class="ohlc-label c-label">Close 軌跡</div>
+          <div class="ohlc-label o-label">Open 軌跡</div>
+          <div class="ohlc-label l-label">Low 軌跡</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ch1-right fade-in fade-d2">
+      <div class="mode-select">
+        <h3>選擇模式 · SELECT MODE</h3>
+        <label for="nav-bias-bull" class="mode-btn">
+          市場方向
+          <span class="sub">Bias · OHLC Direction</span>
+        </label>
+        <label for="nav-pdl" class="mode-btn">
+          價格運行邏輯
+          <span class="sub">Price Delivery Logic</span>
+        </label>
+        <div class="mode-btn locked">
+          🔒 自由練習
+          <span class="sub">Free Practice · LOCKED</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <label for="nav-main" class="back-btn">← 返回主選單</label>
+</div>
+
+<!-- ========== PAGE 3: BIAS - BULLISH ========== -->
+<div class="page page-bias-bull interior">
+  <div class="breadcrumb">
+    <span>Candle Profile</span><span class="sep">›</span><span>Chapter 01</span><span class="sep">›</span><span class="active">市場方向 Bias</span>
+  </div>
+  <div class="page-header fade-in">
+    <h1>SWING POINT
+      <span class="en">市場方向 Bias · 你認為蠟燭怎麼走？</span>
+    </h1>
+  </div>
+
+  <div class="swing-layout">
+    <div class="swing-chart fade-in fade-d1">
+      <div class="watermark">SWING</div>
+      <div class="candles-row">
+        <div class="cstick bear"><div class="upper-wick" style="height:12px"></div><div class="cbody" style="height:30px"></div><div class="lower-wick" style="height:8px"></div></div>
+        <div class="cstick bear"><div class="upper-wick" style="height:8px"></div><div class="cbody" style="height:24px"></div><div class="lower-wick" style="height:14px"></div></div>
+        <div class="cstick bull"><div class="upper-wick" style="height:6px"></div><div class="cbody" style="height:18px"></div><div class="lower-wick" style="height:20px"></div></div>
+        <div class="cstick bull"><div class="upper-wick" style="height:4px"></div><div class="cbody" style="height:32px"></div><div class="lower-wick" style="height:10px"></div></div>
+        <div class="cstick bull"><div class="upper-wick" style="height:6px"></div><div class="cbody" style="height:40px"></div><div class="lower-wick" style="height:8px"></div></div>
+        <div class="cstick bull"><div class="upper-wick" style="height:4px"></div><div class="cbody" style="height:50px"></div><div class="lower-wick" style="height:6px"></div></div>
+        <div class="cstick bull"><div class="upper-wick" style="height:6px"></div><div class="cbody" style="height:56px"></div><div class="lower-wick" style="height:4px"></div></div>
+        <div class="cstick bull"><div class="upper-wick" style="height:4px"></div><div class="cbody" style="height:64px"></div><div class="lower-wick" style="height:6px"></div></div>
+        <div class="cstick bull"><div class="upper-wick" style="height:6px"></div><div class="cbody" style="height:72px"></div><div class="lower-wick" style="height:4px"></div></div>
+        <div class="cstick bull"><div class="upper-wick" style="height:4px"></div><div class="cbody" style="height:80px"></div><div class="lower-wick" style="height:6px"></div></div>
+      </div>
+      <div class="tf-btns">
+        <span class="tf-btn">1min</span>
+        <span class="tf-btn active">15m</span>
+        <span class="tf-btn">1H</span>
+        <span class="tf-btn">1D</span>
+      </div>
+    </div>
+
+    <div class="bias-panel fade-in fade-d2">
+      <div class="bias-box">
+        <h3>CHOOSE YOUR BIAS</h3>
+        <div class="zh-title">方向選擇</div>
+        <label for="nav-bias-bull" class="bias-option selected">
+          看漲 BULLISH
+          <span class="sub">BULLISH · DLHS</span>
+        </label>
+        <label for="nav-bias-bear" class="bias-option">
+          看跌 BEARISH
+          <span class="sub">BEARISH · DLHS</span>
+        </label>
+      </div>
+      <div class="ohlc-flow fade-in fade-d3">
+        Open <span class="arrow">→</span> Low <span class="arrow">→</span> High <span class="arrow">→</span> Close
+      </div>
+      <div class="bias-desc fade-in fade-d4">
+        若往看漲方向，蠟燭先向下形成下影線 (Wick)，再向上擴張形成收盤體 (Body)。
+        <span class="en">In bullish bias: the candle first moves down to form the lower wick, then expands up to form the body.</span>
+      </div>
+    </div>
+  </div>
+
+  <label for="nav-ch1" class="back-btn">← 返回</label>
+  <label for="nav-pdl" class="next-btn">NEXT →</label>
+</div>
+
+<!-- ========== PAGE 4: BIAS - BEARISH ========== -->
+<div class="page page-bias-bear interior">
+  <div class="breadcrumb">
+    <span>Candle Profile</span><span class="sep">›</span><span>Chapter 01</span><span class="sep">›</span><span class="active">市場方向 Bias</span>
+  </div>
+  <div class="page-header fade-in">
+    <h1>SWING POINT
+      <span class="en">市場方向 Bias · 你認為蠟燭怎麼走？</span>
+    </h1>
+  </div>
+
+  <div class="swing-layout">
+    <div class="swing-chart fade-in fade-d1">
+      <div class="watermark">SWING</div>
+      <div class="candles-row" style="align-items:flex-start;">
+        <div class="cstick bull"><div class="upper-wick" style="height:8px"></div><div class="cbody" style="height:30px"></div><div class="lower-wick" style="height:12px"></div></div>
+        <div class="cstick bull"><div class="upper-wick" style="height:14px"></div><div class="cbody" style="height:24px"></div><div class="lower-wick" style="height:8px"></div></div>
+        <div class="cstick bear"><div class="upper-wick" style="height:20px"></div><div class="cbody" style="height:18px"></div><div class="lower-wick" style="height:6px"></div></div>
+        <div class="cstick bear"><div class="upper-wick" style="height:10px"></div><div class="cbody" style="height:32px"></div><div class="lower-wick" style="height:4px"></div></div>
+        <div class="cstick bear"><div class="upper-wick" style="height:8px"></div><div class="cbody" style="height:40px"></div><div class="lower-wick" style="height:6px"></div></div>
+        <div class="cstick bear"><div class="upper-wick" style="height:6px"></div><div class="cbody" style="height:50px"></div><div class="lower-wick" style="height:4px"></div></div>
+        <div class="cstick bear"><div class="upper-wick" style="height:4px"></div><div class="cbody" style="height:56px"></div><div class="lower-wick" style="height:6px"></div></div>
+        <div class="cstick bear"><div class="upper-wick" style="height:6px"></div><div class="cbody" style="height:64px"></div><div class="lower-wick" style="height:4px"></div></div>
+        <div class="cstick bear"><div class="upper-wick" style="height:4px"></div><div class="cbody" style="height:72px"></div><div class="lower-wick" style="height:6px"></div></div>
+        <div class="cstick bear"><div class="upper-wick" style="height:6px"></div><div class="cbody" style="height:80px"></div><div class="lower-wick" style="height:4px"></div></div>
+      </div>
+      <div class="tf-btns">
+        <span class="tf-btn">1min</span>
+        <span class="tf-btn active">15m</span>
+        <span class="tf-btn">1H</span>
+        <span class="tf-btn">1D</span>
+      </div>
+    </div>
+
+    <div class="bias-panel fade-in fade-d2">
+      <div class="bias-box">
+        <h3>CHOOSE YOUR BIAS</h3>
+        <div class="zh-title">方向選擇</div>
+        <label for="nav-bias-bull" class="bias-option">
+          看漲 BULLISH
+          <span class="sub">BULLISH · CHC</span>
+        </label>
+        <label for="nav-bias-bear" class="bias-option selected">
+          看跌 BEARISH
+          <span class="sub">BEARISH · CHC</span>
+        </label>
+      </div>
+      <div class="ohlc-flow fade-in fade-d3">
+        Open <span class="arrow">→</span> High <span class="arrow">→</span> Low <span class="arrow">→</span> Close
+      </div>
+      <div class="bias-desc fade-in fade-d4">
+        看跌的開始，蠟燭先向上形成上影 (Wick) 再向下穿破形成體 (Body)。
+        <span class="en">In a bearish bias, the candle first moves up to form the upper wick, then expands down to form the body.</span>
+      </div>
+    </div>
+  </div>
+
+  <label for="nav-ch1" class="back-btn">← 返回</label>
+  <label for="nav-pdl" class="next-btn">NEXT →</label>
+</div>
+
+<!-- ========== PAGE 5: PRICE DELIVERY LOGIC - CAROUSEL 1 ========== -->
+<div class="page page-pdl interior">
+  <div class="breadcrumb">
+    <span>Candle Profile</span><span class="sep">›</span><span>Chapter 01</span><span class="sep">›</span><span class="active">價格運行邏輯</span>
+  </div>
+  <div class="page-header fade-in">
+    <h1>PRICE DELIVERY LOGIC
+      <span class="en">價格運行邏輯 · 選擇你的蠟燭</span>
+    </h1>
+    <p style="font-size:14px; font-weight:600; margin-top:8px;">CHOOSE YOUR CANDLE</p>
+  </div>
+
+  <div class="carousel-section">
+    <div class="p1-indicator">P1</div>
+    <div class="carousel-cards fade-in fade-d1">
+      <div class="carousel-card">
+        <div class="badge cleared">CLEARED</div>
+        <div class="card-candle bias-shape">
+          <div class="wick" style="height:100%; top:0;"></div>
+          <div class="body"></div>
+        </div>
+        <h4>BIAS</h4>
+        <div class="zh">市場方向</div>
+        <div class="desc">OHLC Candle</div>
+      </div>
+      <label for="nav-exp-pos" class="carousel-card active">
+        <div class="card-candle exp-shape">
+          <div class="wick" style="height:100%; top:0;"></div>
+          <div class="body"></div>
+        </div>
+        <h4>EXPANSION</h4>
+        <div class="zh">擴張蠟燭</div>
+        <div class="desc">Small Wick · Large Body</div>
+      </label>
+      <label for="nav-pdl2" class="carousel-card">
+        <div class="card-candle rev-shape">
+          <div class="wick" style="height:100%; top:0;"></div>
+          <div class="body"></div>
+        </div>
+        <h4>REVERSAL</h4>
+        <div class="zh">反轉蠟燭</div>
+        <div class="desc">Large Wick · Small Body</div>
+      </label>
+    </div>
+    <div class="carousel-nav fade-in fade-d2">
+      <label for="nav-pdl">◀</label>
+      <span class="select-text">選擇 SELECT</span>
+      <label for="nav-pdl2">▶</label>
+    </div>
+  </div>
+
+  <label for="nav-ch1" class="back-btn">← 返回</label>
+</div>
+
+<!-- ========== PAGE 6: CAROUSEL 2 - REVERSAL FOCUSED ========== -->
+<div class="page page-pdl2 interior">
+  <div class="breadcrumb">
+    <span>Candle Profile</span><span class="sep">›</span><span>Chapter 01</span><span class="sep">›</span><span class="active">價格運行邏輯</span>
+  </div>
+  <div class="page-header fade-in">
+    <h1>PRICE DELIVERY LOGIC
+      <span class="en">價格運行邏輯 · 選擇你的蠟燭</span>
+    </h1>
+    <p style="font-size:14px; font-weight:600; margin-top:8px;">CHOOSE YOUR CANDLE</p>
+  </div>
+
+  <div class="carousel-section">
+    <div class="p1-indicator">P1</div>
+    <div class="carousel-cards fade-in fade-d1">
+      <label for="nav-exp-pos" class="carousel-card">
+        <div class="badge cleared">CLEARED</div>
+        <div class="card-candle exp-shape">
+          <div class="wick" style="height:100%; top:0;"></div>
+          <div class="body"></div>
+        </div>
+        <h4>EXPANSION</h4>
+        <div class="zh">擴張蠟燭</div>
+        <div class="desc">Small Wick · Large Body</div>
+      </label>
+      <label for="nav-rev-pos" class="carousel-card active">
+        <div class="card-candle rev-shape">
+          <div class="wick" style="height:100%; top:0;"></div>
+          <div class="body"></div>
+        </div>
+        <h4>REVERSAL</h4>
+        <div class="zh">反轉蠟燭</div>
+        <div class="desc">Large Wick · Small Body</div>
+      </label>
+      <div class="carousel-card locked">
+        <div class="badge lock-badge">🔒 EP.02</div>
+        <div class="card-candle bias-shape">
+          <div class="wick" style="height:100%; top:0;"></div>
+          <div class="body"></div>
+        </div>
+        <h4>LOCKED</h4>
+        <div class="zh">未開發蠟燭</div>
+        <div class="desc">0/10</div>
+      </div>
+    </div>
+    <div class="carousel-nav fade-in fade-d2">
+      <label for="nav-pdl">◀</label>
+      <span class="select-text">選擇 SELECT</span>
+      <label for="nav-pdl2">▶</label>
+    </div>
+  </div>
+
+  <label for="nav-pdl" class="back-btn">← 返回</label>
+</div>
+
+<!-- ========== PAGE 7: EXPANSION - POSITIVE ========== -->
+<div class="page page-exp-pos interior">
+  <div class="breadcrumb">
+    <span>Candle Profile</span><span class="sep">›</span><span>擴張蠟燭 Expansion</span><span class="sep">›</span><span class="active">Positive</span>
+  </div>
+  <div class="page-header fade-in">
+    <h1>EXPANSION CANDLE
+      <span class="en">擴張蠟燭 · Small Wick, Large Body</span>
+    </h1>
+  </div>
+
+  <div class="detail-layout">
+    <div class="detail-chart fade-in fade-d1">
+      <div class="ref-candle exp-type">
+        <div class="wick"></div>
+        <div class="body"></div>
+        <div class="label top-l">Small Wick</div>
+        <div class="label body-l">Large Body</div>
+      </div>
+      <div class="detail-chart-area">
+        <div class="condition-tag positive"><div class="dot"></div> POSITIVE CONDITION</div>
+        <div class="candles-row" style="height:160px;">
+          <div class="cstick bull"><div class="upper-wick" style="height:4px"></div><div class="cbody" style="height:24px"></div><div class="lower-wick" style="height:6px"></div></div>
+          <div class="cstick bull"><div class="upper-wick" style="height:3px"></div><div class="cbody" style="height:32px"></div><div class="lower-wick" style="height:4px"></div></div>
+          <div class="cstick bull"><div class="upper-wick" style="height:4px"></div><div class="cbody" style="height:40px"></div><div class="lower-wick" style="height:3px"></div></div>
+          <div class="cstick bull"><div class="upper-wick" style="height:3px"></div><div class="cbody" style="height:52px"></div><div class="lower-wick" style="height:4px"></div></div>
+          <div class="cstick bull"><div class="upper-wick" style="height:4px"></div><div class="cbody" style="height:60px"></div><div class="lower-wick" style="height:3px"></div></div>
+          <div class="cstick bull"><div class="upper-wick" style="height:3px"></div><div class="cbody" style="height:70px"></div><div class="lower-wick" style="height:4px"></div></div>
+          <div class="cstick bull"><div class="upper-wick" style="height:4px"></div><div class="cbody" style="height:80px"></div><div class="lower-wick" style="height:3px"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="prob-panel fade-in fade-d2">
+      <div class="prob-box">
+        <h3>SELECT PROBABILITY</h3>
+        <div class="zh-title">勝率選擇</div>
+        <label for="nav-exp-pos" class="prob-option selected">■ 高概率 HIGH PROBABILITY</label>
+        <label for="nav-exp-neg" class="prob-option">■ 低概率 LOW PROBABILITY</label>
+      </div>
+      <div class="characteristics fade-in fade-d3">
+        <h4>高概率擴張蠟燭的特性 · HIGH PROBABILITY</h4>
+        <div class="char-item">
+          <strong>Small Wick：</strong>影線較短，價格大部分時間區間行於蠟燭體 (Body) 範圍內。
+          <span class="en">Small Wick: price spends most of its time inside the body.</span>
+        </div>
+        <div class="char-item">
+          <strong>淺做回撤：</strong>回撤不超過 0.5（50%），維持強勢姿態。
+          <span class="en">Shallow PD retracement: pullbacks stay above 0.5 (50%), maintaining strong momentum.</span>
+        </div>
+        <div class="char-item">
+          <strong>尊重 PDA：</strong>價格行為等基 PDA，展現明確的延續性。
+          <span class="en">Respects PDA: price keeps respecting PDA's, showing clear confirmation.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <label for="nav-pdl" class="back-btn">← 返回</label>
+  <label for="nav-exp-neg" class="next-btn">LOW PROB →</label>
+</div>
+
+<!-- ========== PAGE 8: EXPANSION - NEGATIVE ========== -->
+<div class="page page-exp-neg interior">
+  <div class="breadcrumb">
+    <span>Candle Profile</span><span class="sep">›</span><span>擴張蠟燭 Expansion</span><span class="sep">›</span><span class="active">Negative</span>
+  </div>
+  <div class="page-header fade-in">
+    <h1>EXPANSION CANDLE
+      <span class="en">擴張蠟燭 · Small Wick, Large Body</span>
+    </h1>
+  </div>
+
+  <div class="detail-layout">
+    <div class="detail-chart fade-in fade-d1">
+      <div class="ref-candle exp-type" style="position:relative;">
+        <div class="wick"></div>
+        <div class="body"></div>
+        <div class="label top-l">Large Wick</div>
+        <div class="label body-l" style="color:#c62828;">SMALL BODY</div>
+        <div style="position:absolute; top:40%; left:50%; transform:translate(-50%,-50%); font-size:36px; color:rgba(200,0,0,0.3); font-weight:900;">✕</div>
+      </div>
+      <div class="detail-chart-area">
+        <div class="condition-tag negative"><div class="dot"></div> NEGATIVE CONDITION</div>
+        <div class="x-mark">✕</div>
+        <div class="candles-row" style="height:160px;">
+          <div class="cstick bull"><div class="upper-wick" style="height:10px"></div><div class="cbody" style="height:20px"></div><div class="lower-wick" style="height:12px"></div></div>
+          <div class="cstick bear"><div class="upper-wick" style="height:14px"></div><div class="cbody" style="height:16px"></div><div class="lower-wick" style="height:10px"></div></div>
+          <div class="cstick bull"><div class="upper-wick" style="height:12px"></div><div class="cbody" style="height:22px"></div><div class="lower-wick" style="height:8px"></div></div>
+          <div class="cstick bear"><div class="upper-wick" style="height:10px"></div><div class="cbody" style="height:18px"></div><div class="lower-wick" style="height:14px"></div></div>
+          <div class="cstick bull"><div class="upper
