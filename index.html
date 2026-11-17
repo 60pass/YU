@@ -52,8 +52,10 @@
     color: #fff; transform: translateY(-2px); box-shadow: 0 4px 20px rgba(200,168,80,0.1);
   }
   .menu-btn svg { width: 20px; height: 20px; flex-shrink: 0; }
-  .menu-btn .en { font-size: 11px; color: rgba(255,255,255,0.3); margin-left: auto; }
-  .menu-btn:hover .en { color: rgba(200,168,80,0.6); }
+  .menu-btn { position: relative; justify-content: center; }
+  .menu-btn svg { position: absolute; left: 24px; }
+  .menu-btn .en { font-size: 15px; font-weight: 600; letter-spacing: 3px; color: #e0dcd4; }
+  .menu-btn:hover .en { color: #c8a850; }
   .menu-btn:hover svg path, .menu-btn:hover svg polygon, .menu-btn:hover svg rect { stroke: #c8a850; }
 
   .breadcrumb {
@@ -229,16 +231,13 @@
   </div>
   <div class="menu-list">
     <label for="nav-ch1" class="menu-btn fade-in fade-d1">
-      <svg viewBox="0 0 24 24" fill="none" stroke="#c8a850" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-      <span>開始</span><span class="en">START</span>
+      <span class="en">TOC</span>
     </label>
     <label for="nav-ch1" class="menu-btn fade-in fade-d2">
-      <svg viewBox="0 0 24 24" fill="none" stroke="#c8a850" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-      <span>目錄</span><span class="en">TOC</span>
+      <span class="en">START</span>
     </label>
     <label for="nav-ch1" class="menu-btn fade-in fade-d3">
-      <svg viewBox="0 0 24 24" fill="none" stroke="#c8a850" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-      <span>繼續</span><span class="en">CONTINUE</span>
+      <span class="en">CONTINUE</span>
     </label>
   </div>
 </div>
